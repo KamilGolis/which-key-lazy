@@ -13,6 +13,8 @@
     <b>0.1.5</b>
     <ul>
       <li>Add Tools settings for popup placement and gap</li>
+      <li>Add alphabetical/config-order sorting setting</li>
+      <li>Fix space-leader mappings not using g:WhichKeyDesc_ labels</li>
     </ul>
     <b>0.1.4</b>
     <ul>
