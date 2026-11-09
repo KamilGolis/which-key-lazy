@@ -55,6 +55,20 @@ class PopupPlacementTest {
     }
 
     @Test
+    fun `center aligns popup center with editor center`() {
+        val point = PopupPlacement.CENTER.location(visible, popup, 0, 0)
+        assertEquals(visible.x + visible.width / 2, point.x + popup.width / 2)
+        assertEquals(visible.y + visible.height / 2, point.y + popup.height / 2)
+    }
+
+    @Test
+    fun `center gap offsets the popup center`() {
+        val point = PopupPlacement.CENTER.location(visible, popup, 10, 20)
+        assertEquals(visible.x + visible.width / 2 + 10, point.x + popup.width / 2)
+        assertEquals(visible.y + visible.height / 2 + 20, point.y + popup.height / 2)
+    }
+
+    @Test
     fun `gap offsets centered placements`() {
         assertEquals(Point(460, 630), PopupPlacement.BOTTOM_CENTER.location(visible, popup, 10, 20))
         assertEquals(Point(460, 70), PopupPlacement.TOP_CENTER.location(visible, popup, 10, 20))
