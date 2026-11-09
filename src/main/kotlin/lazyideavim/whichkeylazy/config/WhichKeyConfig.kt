@@ -69,6 +69,7 @@ object WhichKeyConfig {
                 put("placement", JsonPrimitive(settings.placement))
                 put("gapX", JsonPrimitive(settings.gapX))
                 put("gapY", JsonPrimitive(settings.gapY))
+                put("sortAlphabetically", JsonPrimitive(settings.sortAlphabetically))
             }
             val mergedSettings = JsonObject((existingSettings + newSettings) - "position")
             val updatedRoot = JsonObject(root + ("settings" to mergedSettings))

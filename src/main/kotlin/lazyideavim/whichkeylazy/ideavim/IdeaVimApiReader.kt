@@ -25,11 +25,10 @@ object IdeaVimApiReader {
     fun readMappings(): Map<String, KeyNode> {
         return try {
             val leaderChar = MappingLookup.getLeaderChar()
-            val leaderStroke = if (leaderChar == ' ') {
-                KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0)
-            } else {
-                KeyStroke.getKeyStroke(leaderChar)
-            }
+            // IdeaVim stores leader keys as typed KeyStrokes (e.g. getKeyStroke(' ')),
+            // not pressed key codes (getKeyStroke(VK_SPACE, 0)). Equality is exact,
+            // so using the pressed form makes every space-leader lookup miss.
+            val leaderStroke = KeyStroke.getKeyStroke(leaderChar)
             val descriptions = extractWhichKeyDescriptions(leaderChar)
             val mappings = extractLeaderMappings(leaderStroke)
 

@@ -8,6 +8,7 @@ object DefaultConfig {
     "delay": 200,
     "maxColumns": 5,
     "sortGroupsFirst": true,
+    "sortAlphabetically": true,
     "placement": "bottom-center",
     "gapX": 0,
     "gapY": 0,
