@@ -7,6 +7,7 @@ data class WhichKeySettings(
     val delay: Int = 200,
     val maxColumns: Int = 5,
     val sortGroupsFirst: Boolean = true,
+    val sortAlphabetically: Boolean = true,
     val placement: String = PopupPlacement.DEFAULT_ID,
     val gapX: Int = 0,
     val gapY: Int = 0,

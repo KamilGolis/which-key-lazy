@@ -25,19 +25,9 @@ class WhichKeyPanel(
     }
 
     fun updateEntries(bindings: Map<String, KeyNode>) {
-        entries = sortEntries(bindings.values.toList())
+        entries = KeyNodeSorter.sort(bindings.values.toList(), settings)
         recomputeSize()
         repaint()
-    }
-
-    private fun sortEntries(nodes: List<KeyNode>): List<KeyNode> {
-        return if (settings.sortGroupsFirst) {
-            val groups = nodes.filterIsInstance<KeyNode.GroupNode>().sortedBy { it.key }
-            val actions = nodes.filterIsInstance<KeyNode.ActionNode>().sortedBy { it.key }
-            groups + actions
-        } else {
-            nodes.sortedBy { it.key }
-        }
     }
 
     private fun recomputeSize() {

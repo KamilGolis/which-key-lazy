@@ -30,7 +30,7 @@ class WhichKeyConfigSaveTest {
         )
 
         val result = WhichKeyConfig.saveSettings(
-            WhichKeySettings(placement = "top-right", gapX = 10, gapY = 20)
+            WhichKeySettings(placement = "top-right", gapX = 10, gapY = 20, sortAlphabetically = false)
         )
         assertTrue(result.isSuccess)
 
@@ -39,6 +39,7 @@ class WhichKeyConfigSaveTest {
         assertEquals("top-right", settings["placement"]!!.jsonPrimitive.content)
         assertEquals(10, settings["gapX"]!!.jsonPrimitive.int)
         assertEquals(20, settings["gapY"]!!.jsonPrimitive.int)
+        assertFalse(settings["sortAlphabetically"]!!.jsonPrimitive.boolean)
         assertEquals(300, settings["delay"]!!.jsonPrimitive.int)
         assertFalse(settings["showIcons"]!!.jsonPrimitive.boolean)
         assertFalse(settings.containsKey("position"))
@@ -68,6 +69,7 @@ class WhichKeyConfigSaveTest {
         assertEquals("top-left", settings["placement"]!!.jsonPrimitive.content)
         assertEquals(1, settings["gapX"]!!.jsonPrimitive.int)
         assertEquals(2, settings["gapY"]!!.jsonPrimitive.int)
+        assertTrue(settings["sortAlphabetically"]!!.jsonPrimitive.boolean)
         assertTrue((root["overrides"] as JsonObject).isNotEmpty())
         assertTrue((root["bindings"] as JsonObject).isNotEmpty())
     }
@@ -83,6 +85,7 @@ class WhichKeyConfigSaveTest {
         assertEquals("bottom-center", settings["placement"]!!.jsonPrimitive.content)
         assertEquals(0, settings["gapX"]!!.jsonPrimitive.int)
         assertEquals(0, settings["gapY"]!!.jsonPrimitive.int)
+        assertTrue(settings["sortAlphabetically"]!!.jsonPrimitive.boolean)
     }
 
     private fun withTempHome(block: (File) -> Unit) {
