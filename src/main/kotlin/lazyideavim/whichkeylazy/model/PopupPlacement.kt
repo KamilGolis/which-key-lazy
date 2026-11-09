@@ -35,13 +35,12 @@ enum class PopupPlacement(val id: String, val displayName: String) {
         val top = visible.y + gy
         val bottom = visible.y + visible.height - height - gy
         val centerX = visible.x + (visible.width - width) / 2
-        val centerY = visible.y + (visible.height - height) / 2
 
         val point = when (this) {
             BOTTOM_LEFT -> Point(left, bottom)
             BOTTOM_CENTER -> Point(centerX + gx, bottom)
             BOTTOM_RIGHT -> Point(right, bottom)
-            CENTER -> Point(centerX + gx, centerY + gy)
+            CENTER -> centeredLocation(visible, width, height, gx, gy)
             TOP_LEFT -> Point(left, top)
             TOP_CENTER -> Point(centerX + gx, top)
             TOP_RIGHT -> Point(right, top)
@@ -50,6 +49,27 @@ enum class PopupPlacement(val id: String, val displayName: String) {
         return Point(
             point.x.coerceIn(visible.x, visible.x + visible.width - width),
             point.y.coerceIn(visible.y, visible.y + visible.height - height)
+        )
+    }
+
+    /**
+     * Places the popup so its center point coincides with the center point
+     * of the visible editor area, then applies the gap offset.
+     */
+    private fun centeredLocation(
+        visible: Rectangle,
+        popupWidth: Int,
+        popupHeight: Int,
+        gapX: Int,
+        gapY: Int
+    ): Point {
+        val editorCenterX = visible.x + visible.width / 2
+        val editorCenterY = visible.y + visible.height / 2
+        val popupCenterX = popupWidth / 2
+        val popupCenterY = popupHeight / 2
+        return Point(
+            editorCenterX - popupCenterX + gapX,
+            editorCenterY - popupCenterY + gapY
         )
     }
 

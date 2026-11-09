@@ -90,6 +90,14 @@ class WhichKeyPopup(
 
         popup?.size = popupSize
         popup?.show(RelativePoint(contentComponent, placement.location(visibleRect, popupSize, gapX, gapY)))
+
+        // The popup can adjust its size while showing. Anchor it again with
+        // the actual size so corner and center calculations stay exact.
+        val actualSize = popup?.size
+        if (actualSize != null && actualSize != popupSize) {
+            val actualLocation = placement.location(visibleRect, actualSize, gapX, gapY)
+            popup?.setLocation(RelativePoint(contentComponent, actualLocation).screenPoint)
+        }
     }
 
     companion object {
