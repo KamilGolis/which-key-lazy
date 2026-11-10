@@ -57,6 +57,17 @@ class IdeaVimApiReaderTest : BasePlatformTestCase() {
         assertTrue("Unexpected description: ${node.description}", node.description.contains("Go to File"))
     }
 
+    fun testReadsVisualModeDescription() {
+        injector.variableService.storeGlobalVariable("mapleader", VimString(" "))
+        injector.variableService.storeGlobalVariable(
+            "WhichKeyDesc_surround_before_1",
+            VimString("<leader>s( Add ( )")
+        )
+
+        val descriptions = IdeaVimApiReader.readDescriptions()
+        assertEquals("Add ( )", descriptions["s("])
+    }
+
     fun testActionPseudoKeyWithoutWhichKeyDescUsesActionName() {
         injector.variableService.storeGlobalVariable("mapleader", VimString(" "))
         putSpaceActionMapping()

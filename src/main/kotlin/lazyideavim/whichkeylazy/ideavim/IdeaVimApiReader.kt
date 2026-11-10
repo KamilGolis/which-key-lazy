@@ -40,6 +40,18 @@ object IdeaVimApiReader {
         }
     }
 
+    /**
+     * Reads g:WhichKeyDesc_ variables. The result is mode-independent:
+     * the same descriptions apply to normal, visual, and other mappings.
+     */
+    fun readDescriptions(): Map<String, String> {
+        return try {
+            extractWhichKeyDescriptions(MappingLookup.getLeaderChar())
+        } catch (_: Exception) {
+            emptyMap()
+        }
+    }
+
     fun isAvailable(): Boolean {
         return try {
             injector.keyGroup
