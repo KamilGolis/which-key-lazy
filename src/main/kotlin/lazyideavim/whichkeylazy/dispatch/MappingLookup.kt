@@ -317,6 +317,13 @@ object MappingLookup {
                 val match = ACTION_PATTERN.find(keysStr)
                 if (match != null) return match.groupValues[1]
 
+                // <Action>(ActionId) is a ToKeysMappingInfo, not a :action mapping.
+                if (mappingInfo.toKeys.any { it.keyCode == VK_ACTION } &&
+                    keysStr.startsWith("(") && keysStr.endsWith(")")
+                ) {
+                    return keysStr.substring(1, keysStr.length - 1).takeIf { it.isNotBlank() }
+                }
+
                 try {
                     val toKeys = mappingInfo.toKeys.filterNot { isPlugOrActionKey(it) }
                     if (toKeys.isNotEmpty()) {

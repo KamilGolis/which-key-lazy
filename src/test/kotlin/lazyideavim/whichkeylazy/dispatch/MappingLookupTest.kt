@@ -18,6 +18,50 @@ class MappingLookupTest : BasePlatformTestCase() {
         }
     }
 
+    fun testActionMappingWithoutWhichKeyDescUsesActionNameInLookup() {
+        injector.variableService.storeGlobalVariable("mapleader", VimString(" "))
+        injector.keyGroup.putKeyMapping(
+            setOf(MappingMode.NORMAL),
+            listOf(KeyStroke.getKeyStroke(' '), KeyStroke.getKeyStroke(' ')),
+            MappingOwner.Plugin.get(OWNER),
+            injector.parser.parseKeys(":action GotoFile<cr>"),
+            false
+        )
+
+        val result = MappingLookup.getNestedEntries(
+            listOf(KeyStroke.getKeyStroke(' ')),
+            MappingMode.NORMAL
+        )
+
+        assertNotNull(result)
+        val node = result!!.entries["<Space>"] ?: result.entries[" "]
+        assertNotNull("Expected a space entry, got ${result.entries.keys}", node)
+        assertTrue("Description was blank: $node", node!!.description.isNotBlank())
+        assertTrue("Unexpected description: ${node.description}", node.description.contains("Go to File"))
+    }
+
+    fun testActionPseudoKeyWithoutWhichKeyDescUsesActionNameInLookup() {
+        injector.variableService.storeGlobalVariable("mapleader", VimString(" "))
+        injector.keyGroup.putKeyMapping(
+            setOf(MappingMode.NORMAL),
+            listOf(KeyStroke.getKeyStroke(' '), KeyStroke.getKeyStroke(' ')),
+            MappingOwner.Plugin.get(OWNER),
+            injector.parser.parseKeys("<Action>(GotoFile)"),
+            false
+        )
+
+        val result = MappingLookup.getNestedEntries(
+            listOf(KeyStroke.getKeyStroke(' ')),
+            MappingMode.NORMAL
+        )
+
+        assertNotNull(result)
+        val node = result!!.entries["<Space>"] ?: result.entries[" "]
+        assertNotNull("Expected a space entry, got ${result.entries.keys}", node)
+        assertTrue("Description was blank: $node", node!!.description.isNotBlank())
+        assertTrue("Unexpected description: ${node.description}", node.description.contains("Go to File"))
+    }
+
     fun testConfigOrderIsPreservedInLookup() {
         injector.variableService.storeGlobalVariable("mapleader", VimString(" "))
         listOf('z', 'a', 'm').forEach { key ->
