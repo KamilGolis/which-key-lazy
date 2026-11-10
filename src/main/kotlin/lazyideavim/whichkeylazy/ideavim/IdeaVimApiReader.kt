@@ -67,11 +67,15 @@ object IdeaVimApiReader {
 
                 val normalized = keySequence
                     .replace("<leader>", leaderChar.toString(), ignoreCase = true)
-                    .replace("<Space>", " ", ignoreCase = true)
 
                 val leaderIdx = normalized.indexOf(leaderChar)
                 if (leaderIdx >= 0 && description.isNotEmpty()) {
-                    val suffix = normalized.substring(leaderIdx + 1)
+                    val afterLeader = normalized.substring(leaderIdx + 1)
+                    val suffix = try {
+                        injector.parser.toKeyNotation(injector.parser.parseKeys(afterLeader))
+                    } catch (_: Exception) {
+                        afterLeader
+                    }
                     if (suffix.isNotEmpty()) {
                         descriptions[suffix] = description
                     }
@@ -176,6 +180,14 @@ object IdeaVimApiReader {
         if (actionMatch != null) {
             val actionId = actionMatch.groupValues[1]
             return actionId to ActionDescriptions.lookup(actionId)
+        }
+
+        // <Action>(ActionId) is a ToKeysMappingInfo, not a :action mapping.
+        if (toKeys.any { it.keyCode == VK_ACTION } && keysStr.startsWith("(") && keysStr.endsWith(")")) {
+            val actionId = keysStr.substring(1, keysStr.length - 1)
+            if (actionId.isNotBlank()) {
+                return actionId to ActionDescriptions.lookup(actionId)
+            }
         }
 
         try {
