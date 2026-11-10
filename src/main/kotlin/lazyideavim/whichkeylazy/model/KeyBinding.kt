@@ -7,7 +7,10 @@ data class WhichKeySettings(
     val delay: Int = 200,
     val maxColumns: Int = 5,
     val sortGroupsFirst: Boolean = true,
-    val position: String = "bottom-right",
+    val sortAlphabetically: Boolean = true,
+    val placement: String = PopupPlacement.DEFAULT_ID,
+    val gapX: Int = 0,
+    val gapY: Int = 0,
     val showIcons: Boolean = true
 )
 

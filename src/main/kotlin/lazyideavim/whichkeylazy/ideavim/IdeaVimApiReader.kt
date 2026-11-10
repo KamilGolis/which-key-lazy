@@ -25,17 +25,28 @@ object IdeaVimApiReader {
     fun readMappings(): Map<String, KeyNode> {
         return try {
             val leaderChar = MappingLookup.getLeaderChar()
-            val leaderStroke = if (leaderChar == ' ') {
-                KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0)
-            } else {
-                KeyStroke.getKeyStroke(leaderChar)
-            }
+            // IdeaVim stores leader keys as typed KeyStrokes (e.g. getKeyStroke(' ')),
+            // not pressed key codes (getKeyStroke(VK_SPACE, 0)). Equality is exact,
+            // so using the pressed form makes every space-leader lookup miss.
+            val leaderStroke = KeyStroke.getKeyStroke(leaderChar)
             val descriptions = extractWhichKeyDescriptions(leaderChar)
             val mappings = extractLeaderMappings(leaderStroke)
 
             if (mappings.isEmpty()) return emptyMap()
 
             buildTree(mappings, descriptions)
+        } catch (_: Exception) {
+            emptyMap()
+        }
+    }
+
+    /**
+     * Reads g:WhichKeyDesc_ variables. The result is mode-independent:
+     * the same descriptions apply to normal, visual, and other mappings.
+     */
+    fun readDescriptions(): Map<String, String> {
+        return try {
+            extractWhichKeyDescriptions(MappingLookup.getLeaderChar())
         } catch (_: Exception) {
             emptyMap()
         }
@@ -68,11 +79,15 @@ object IdeaVimApiReader {
 
                 val normalized = keySequence
                     .replace("<leader>", leaderChar.toString(), ignoreCase = true)
-                    .replace("<Space>", " ", ignoreCase = true)
 
                 val leaderIdx = normalized.indexOf(leaderChar)
                 if (leaderIdx >= 0 && description.isNotEmpty()) {
-                    val suffix = normalized.substring(leaderIdx + 1)
+                    val afterLeader = normalized.substring(leaderIdx + 1)
+                    val suffix = try {
+                        injector.parser.toKeyNotation(injector.parser.parseKeys(afterLeader))
+                    } catch (_: Exception) {
+                        afterLeader
+                    }
                     if (suffix.isNotEmpty()) {
                         descriptions[suffix] = description
                     }
@@ -177,6 +192,14 @@ object IdeaVimApiReader {
         if (actionMatch != null) {
             val actionId = actionMatch.groupValues[1]
             return actionId to ActionDescriptions.lookup(actionId)
+        }
+
+        // <Action>(ActionId) is a ToKeysMappingInfo, not a :action mapping.
+        if (toKeys.any { it.keyCode == VK_ACTION } && keysStr.startsWith("(") && keysStr.endsWith(")")) {
+            val actionId = keysStr.substring(1, keysStr.length - 1)
+            if (actionId.isNotBlank()) {
+                return actionId to ActionDescriptions.lookup(actionId)
+            }
         }
 
         try {

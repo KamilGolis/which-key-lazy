@@ -21,12 +21,25 @@ class WhichKeyConfigService {
     var overrides: Map<String, OverrideEntry> = emptyMap()
         private set
 
+    /**
+     * g:WhichKeyDesc_ descriptions keyed by the post-leader key sequence.
+     * These apply to every mode, including visual and operator-pending.
+     */
+    var descriptions: Map<String, String> = emptyMap()
+        private set
+
     var loadError: String? = null
         private set
 
     fun reload() {
         loadConfigOverrides()
         loadBindings()
+    }
+
+    fun saveSettings(newSettings: WhichKeySettings): Result<Unit> {
+        return WhichKeyConfig.saveSettings(newSettings).onSuccess {
+            settings = newSettings
+        }
     }
 
     private fun loadConfigOverrides() {
@@ -38,6 +51,7 @@ class WhichKeyConfigService {
 
     private fun loadBindings() {
         if (IdeaVimApiReader.isAvailable()) {
+            descriptions = IdeaVimApiReader.readDescriptions()
             val bindings = IdeaVimApiReader.readMappings()
             if (bindings.isNotEmpty()) {
                 rootBindings = bindings
@@ -49,6 +63,7 @@ class WhichKeyConfigService {
         // Fallback: parse ~/.ideavimrc file directly
         try {
             val parseResult = IdeaVimRcParser.parse()
+            descriptions = parseResult.descriptions
             rootBindings = IdeaVimTreeBuilder.buildTree(parseResult)
             loadError = null
         } catch (e: Exception) {

@@ -4,6 +4,7 @@ import lazyideavim.whichkeylazy.ActionDescriptions
 import lazyideavim.whichkeylazy.config.WhichKeyConfigService
 import lazyideavim.whichkeylazy.model.KeyNode
 import lazyideavim.whichkeylazy.model.OverrideEntry
+import lazyideavim.whichkeylazy.ui.DescriptionOverrides
 import lazyideavim.whichkeylazy.ui.IconResolver
 import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.DuplicableOperatorAction
@@ -74,7 +75,12 @@ object MappingLookup {
         } ?: return null
 
         val postLeaderPrefix = computePostLeaderPrefix(typedKeySequence)
-        val overridden = applyOverrides(result.entries, postLeaderPrefix)
+        val described = DescriptionOverrides.apply(
+            result.entries,
+            WhichKeyConfigService.getInstance().descriptions,
+            postLeaderPrefix
+        )
+        val overridden = applyOverrides(described, postLeaderPrefix)
 
         return LookupResult(result.path, overridden)
     }
@@ -316,6 +322,13 @@ object MappingLookup {
                 val keysStr = mappingInfo.toKeys.mapNotNull { keyStrokeToChar(it) }.joinToString("")
                 val match = ACTION_PATTERN.find(keysStr)
                 if (match != null) return match.groupValues[1]
+
+                // <Action>(ActionId) is a ToKeysMappingInfo, not a :action mapping.
+                if (mappingInfo.toKeys.any { it.keyCode == VK_ACTION } &&
+                    keysStr.startsWith("(") && keysStr.endsWith(")")
+                ) {
+                    return keysStr.substring(1, keysStr.length - 1).takeIf { it.isNotBlank() }
+                }
 
                 try {
                     val toKeys = mappingInfo.toKeys.filterNot { isPlugOrActionKey(it) }

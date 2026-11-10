@@ -32,7 +32,10 @@ class KeyBindingSerializationTest {
             delay = 500,
             maxColumns = 3,
             sortGroupsFirst = false,
-            position = "center",
+            sortAlphabetically = false,
+            placement = "center",
+            gapX = 12,
+            gapY = 8,
             showIcons = false
         )
         val encoded = json.encodeToString(original)
