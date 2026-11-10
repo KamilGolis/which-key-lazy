@@ -4,6 +4,7 @@ import lazyideavim.whichkeylazy.ActionDescriptions
 import lazyideavim.whichkeylazy.config.WhichKeyConfigService
 import lazyideavim.whichkeylazy.model.KeyNode
 import lazyideavim.whichkeylazy.model.OverrideEntry
+import lazyideavim.whichkeylazy.ui.DescriptionOverrides
 import lazyideavim.whichkeylazy.ui.IconResolver
 import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.DuplicableOperatorAction
@@ -74,7 +75,12 @@ object MappingLookup {
         } ?: return null
 
         val postLeaderPrefix = computePostLeaderPrefix(typedKeySequence)
-        val overridden = applyOverrides(result.entries, postLeaderPrefix)
+        val described = DescriptionOverrides.apply(
+            result.entries,
+            WhichKeyConfigService.getInstance().descriptions,
+            postLeaderPrefix
+        )
+        val overridden = applyOverrides(described, postLeaderPrefix)
 
         return LookupResult(result.path, overridden)
     }
